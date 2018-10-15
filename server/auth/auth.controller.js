@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
 const APIError = require('../helpers/APIError');
 const config = require('../../config/config');
+const User = require('../user/user.model');
 
 // sample user, used for authentication
 const user = {
@@ -16,21 +17,68 @@ const user = {
  * @param next
  * @returns {*}
  */
-function login(req, res, next) {
-  // Ideally you'll fetch this from the db
-  // Idea here was to show how jwt works with simplicity
-  if (req.body.username === user.username && req.body.password === user.password) {
-    const token = jwt.sign({
-      username: user.username
-    }, config.jwtSecret);
-    return res.json({
-      token,
-      username: user.username
+function signin(req, res, next) {
+  User.findOne({
+    username: req.body.username
+  }, function (err, user) {
+    if (err) throw err;
+
+    if (!user) {
+      res.status(401).send({ success: false, msg: 'Authentication failed. User not found.' });
+    } else {
+      // check if password matches
+      user.comparePassword(req.body.password, function (err, isMatch) {
+        let userData = user.serialize()
+        if (isMatch && !err) {
+          // if user is found and password is right create a token
+          var token = jwt.sign(userData, config.jwtSecret);
+          // return the information including token as JSON
+          res.json({
+            ...userData,
+            token
+          });
+        } else {
+          res.status(401).send({ success: false, msg: 'Authentication failed. Wrong password.' });
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Returns user object
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
+function signup(req, res, next) {
+  if (!req.body.username || !req.body.password) {
+    res.json({ success: false, msg: 'Please pass username and password.' });
+  } else {
+    let newUser = new User({
+      username: req.body.username,
+      password: req.body.password,
+      firstName: req.body.firstName,
+      lastName: req.body.firstName,
+      mobileNumber: req.body.mobileNumber,
+      profileUrl: req.body.profileUrl,
+      email: req.body.email
+    });
+    // save the user
+    newUser.save(function (err, user) {
+      if (err) {
+        return res.json({ success: false, msg: 'Username already exists.', err });
+      }
+      const token = jwt.sign({
+        username: newUser.username
+      }, config.jwtSecret);
+      res.json({
+        ...user.serialize(),
+        token
+      });
     });
   }
-
-  const err = new APIError('Authentication error', httpStatus.UNAUTHORIZED, true);
-  return next(err);
 }
 
 /**
@@ -47,4 +95,4 @@ function getRandomNumber(req, res) {
   });
 }
 
-module.exports = { login, getRandomNumber };
+module.exports = { signin, getRandomNumber, signup };

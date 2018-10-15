@@ -13,8 +13,10 @@ const winstonInstance = require('./winston');
 const routes = require('../index.route');
 const config = require('./config');
 const APIError = require('../server/helpers/APIError');
-
+const swagger = require('./swagger')
 const app = express();
+
+swagger(app);
 
 if (config.env === 'development') {
   app.use(logger('dev'));
