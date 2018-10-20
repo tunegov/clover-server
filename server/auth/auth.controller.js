@@ -70,15 +70,28 @@ function signup(req, res, next) {
       if (err) {
         return res.json({ success: false, msg: 'Username already exists.', err });
       }
+
       const token = jwt.sign({
         username: newUser.username
       }, config.jwtSecret);
+
       res.json({
         ...user.serialize(),
         token
       });
     });
   }
+}
+
+/**
+ * Returns user object
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
+function logout(req, res, next) {
+  res.json({})
 }
 
 /**
@@ -95,4 +108,4 @@ function getRandomNumber(req, res) {
   });
 }
 
-module.exports = { signin, getRandomNumber, signup };
+module.exports = { signin, getRandomNumber, signup, logout };

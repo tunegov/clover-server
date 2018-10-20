@@ -9,7 +9,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 /**
  * Get user object by id
- * @route POST /auth/signin
+ * @route POST /v1/auth/signin
  * @group User
  * @param {string} username.body.required - username
  * @param {string} password.body.required - password
@@ -22,7 +22,7 @@ router.route('/signin')
 
 /**
  * Get user object by id
- * @route POST /auth/signup
+ * @route POST /v1/auth/signup
  * @group User
  * @param {string} username.body.required - username
  * @param {string} password.body.required - password
@@ -35,6 +35,10 @@ router.route('/signin')
  */
 router.route('/signup')
   .post(validate(paramValidation.signup), authCtrl.signup);
+
+
+router.route('/logout')
+  .post(authCtrl.logout);
 
 /** GET /v1/auth/random-number - Protected route,
  * needs token returned by the above as header. Authorization: Bearer {token} */

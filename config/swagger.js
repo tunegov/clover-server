@@ -9,8 +9,8 @@ module.exports = function (app) {
         title: 'Clover GO',
         version: '1.0.0',
       },
-      host: 'localhost:8080',
-      basePath: '/v1',
+      host: 'api.clover-company.cc',
+      basePath: '/',
       produces: [
         "application/json",
         "application/xml"
