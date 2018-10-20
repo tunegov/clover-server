@@ -36,7 +36,13 @@ router.route('/signin')
 router.route('/signup')
   .post(validate(paramValidation.signup), authCtrl.signup);
 
-
+/**
+ * Logout
+ * @route POST /v1/auth/logout
+ * @group User
+ * @returns {string} 200 -
+ * @returns {Error}  default - Unexpected error
+ */
 router.route('/logout')
   .post(authCtrl.logout);
 
